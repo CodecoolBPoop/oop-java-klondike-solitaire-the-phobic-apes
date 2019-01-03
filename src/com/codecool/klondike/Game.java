@@ -1,9 +1,8 @@
 package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -30,6 +29,8 @@ public class Game extends Pane {
     private static double STOCK_GAP = 1;
     private static double FOUNDATION_GAP = 0;
     private static double TABLEAU_GAP = 30;
+
+    Button restartBtn = new Button("Restart");
 
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
@@ -93,17 +94,26 @@ public class Game extends Pane {
     public Game() {
         deck = Card.createNewDeck();
         Collections.shuffle(deck);
+        getChildren().add(restartBtn);
         initPiles();
         dealCards();
+        addButtonsEventHandlers();
     }
 
-
+    private void restartGame() {
+        Collections.shuffle(deck);
+        dealCards();
+    }
 
     public void addMouseEventHandlers(Card card) {
         card.setOnMousePressed(onMousePressedHandler);
         card.setOnMouseDragged(onMouseDraggedHandler);
         card.setOnMouseReleased(onMouseReleasedHandler);
         card.setOnMouseClicked(onMouseClickedHandler);
+    }
+
+    public void addButtonsEventHandlers() {
+        restartBtn.setOnAction((event -> restartGame()));
     }
 
     public void refillStockFromDiscard() {
