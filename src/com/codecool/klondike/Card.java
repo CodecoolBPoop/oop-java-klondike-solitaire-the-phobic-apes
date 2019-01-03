@@ -9,8 +9,8 @@ import java.util.*;
 
 public class Card extends ImageView {
 
-    private int suit;
-    private int rank;
+    private SuitType suit;
+    private RankType rank;
     private boolean faceDown;
 
     private Image backFace;
@@ -24,8 +24,8 @@ public class Card extends ImageView {
     public static final int HEIGHT = 215;
 
     public Card(int suit, int rank, boolean faceDown) {
-        this.suit = suit;
-        this.rank = rank;
+        this.suit = SuitType.values()[suit - 1];
+        this.rank = RankType.values()[rank - 1];
         this.faceDown = faceDown;
         this.dropShadow = new DropShadow(2, Color.gray(0, 0.75));
         backFace = cardBackImage;
@@ -34,11 +34,11 @@ public class Card extends ImageView {
         setEffect(dropShadow);
     }
 
-    public int getSuit() {
+    public SuitType getSuit() {
         return suit;
     }
 
-    public int getRank() {
+    public RankType getRank() {
         return rank;
     }
 
@@ -47,7 +47,9 @@ public class Card extends ImageView {
     }
 
     public String getShortName() {
-        return "S" + suit + "R" + rank;
+        int index = RankType.getIndex(RankType.TWO);
+        String code = "S" + SuitType.getIndex(suit) + "R" + RankType.getIndex(rank);
+        return code;
     }
 
     public DropShadow getDropShadow() {
@@ -120,6 +122,49 @@ public class Card extends ImageView {
                 String imageFileName = "card_images/" + cardName + ".png";
                 cardFaceImages.put(cardId, new Image(imageFileName));
             }
+        }
+    }
+
+    public enum RankType{
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE,
+        TEN,
+        JACK,
+        QUEEN,
+        KING,
+        ACE;
+
+        public static int getIndex(RankType type){
+            int position = 0;
+            for (int i = 0; i < RankType.values().length; i++) {
+                if(type.equals(RankType.values()[i])){
+                    position = i + 1;
+                }
+            }
+            return position;
+        }
+    }
+
+    public enum SuitType{
+        HARTS,
+        DIAMONDS,
+        SPADES,
+        CLUBS;
+
+        public static int getIndex(SuitType type){
+            int position = 0;
+            for (int i = 0; i < SuitType.values().length; i++) {
+                if(type.equals(SuitType.values()[i])){
+                    position = i + 1;
+                }
+            }
+            return position;
         }
     }
 
