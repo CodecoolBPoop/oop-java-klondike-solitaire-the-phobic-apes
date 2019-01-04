@@ -1,9 +1,8 @@
 package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -30,6 +29,8 @@ public class Game extends Pane {
     private static double STOCK_GAP = 1;
     private static double FOUNDATION_GAP = 0;
     private static double TABLEAU_GAP = 30;
+
+    Button restartBtn = new Button("Restart");
 
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
@@ -93,17 +94,43 @@ public class Game extends Pane {
     public Game() {
         deck = Card.createNewDeck();
         Collections.shuffle(deck);
+        getChildren().add(restartBtn);
         initPiles();
         dealCards();
+        addButtonsEventHandlers();
     }
 
+    private void restartGame() {
 
+        for (Card card:stockPile.getCards()) {
+            getChildren().remove(card);
+
+        }
+
+        for (Card card:discardPile.getCards()) {
+            getChildren().remove(card);
+        }
+
+        for (int i = 0; i< tableauPiles.size(); i++) {
+            for (Card card: tableauPiles.get(i).getCards()) {
+                getChildren().remove(card);
+            }
+        }
+
+        deck = Card.createNewDeck();
+        Collections.shuffle(deck);
+        dealCards();
+    }
 
     public void addMouseEventHandlers(Card card) {
         card.setOnMousePressed(onMousePressedHandler);
         card.setOnMouseDragged(onMouseDraggedHandler);
         card.setOnMouseReleased(onMouseReleasedHandler);
         card.setOnMouseClicked(onMouseClickedHandler);
+    }
+
+    public void addButtonsEventHandlers() {
+        restartBtn.setOnAction((event -> restartGame()));
     }
 
     public void refillStockFromDiscard() {
@@ -189,7 +216,7 @@ public class Game extends Pane {
             for (int j = 0; j < i+1; j++) {
                 card = stockPile.getTopCard();
                 card.moveToPile(tableauPiles.get(i));
-                if(j ==i ) {
+                if(j == i ) {
                     card.flip();
                 }
             }
@@ -198,7 +225,11 @@ public class Game extends Pane {
 
     public void dealCards() {
         Iterator<Card> deckIterator = deck.iterator();
-        //TODO
+        stockPile.clear();
+        discardPile.clear();
+        for (int i = 0; i < tableauPiles.size() ; i++) {
+            tableauPiles.get(i).clear();
+        }
         deckIterator.forEachRemaining(card -> {
             stockPile.addCard(card);
             addMouseEventHandlers(card);
