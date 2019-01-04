@@ -1,9 +1,7 @@
 package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -31,6 +29,8 @@ public class Game extends Pane {
     private static double FOUNDATION_GAP = 0;
     private static double TABLEAU_GAP = 30;
 
+    private CardMover cardMover = new CardMover(draggedCards);
+
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
@@ -49,29 +49,16 @@ public class Game extends Pane {
     private EventHandler<MouseEvent> onMousePressedHandler = e -> {
         dragStartX = e.getSceneX();
         dragStartY = e.getSceneY();
+        cardMover.setDragStartX(dragStartX);
+        cardMover.setDragStartY(dragStartY);
     };
 
     private EventHandler<MouseEvent> onMouseDraggedHandler = e -> {
-        Card card = (Card) e.getSource();
-        Pile activePile = card.getContainingPile();
-        if (activePile.getPileType() == Pile.PileType.STOCK)
-            return;
-        double offsetX = e.getSceneX() - dragStartX;
-        double offsetY = e.getSceneY() - dragStartY;
-
-        draggedCards.clear();
-        draggedCards.add(card);
-
-        card.getDropShadow().setRadius(20);
-        card.getDropShadow().setOffsetX(10);
-        card.getDropShadow().setOffsetY(10);
-
-        card.toFront();
-        card.setTranslateX(offsetX);
-        card.setTranslateY(offsetY);
+        cardMover.processCards(e);
     };
 
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
+        cardMover.cardsDropped();
         if (draggedCards.isEmpty())
             return;
         Card card = (Card) e.getSource();
@@ -98,7 +85,6 @@ public class Game extends Pane {
     }
 
 
-
     public void addMouseEventHandlers(Card card) {
         card.setOnMousePressed(onMousePressedHandler);
         card.setOnMouseDragged(onMouseDraggedHandler);
@@ -115,6 +101,7 @@ public class Game extends Pane {
         //TODO
         return true;
     }
+
     private Pile getValidIntersectingPile(Card card, List<Pile> piles) {
         Pile result = null;
         for (Pile pile : piles) {
@@ -186,10 +173,10 @@ public class Game extends Pane {
         Card card;
 
         for (int i = 0; i < tableauPiles.size(); i++) {
-            for (int j = 0; j < i+1; j++) {
+            for (int j = 0; j < i + 1; j++) {
                 card = stockPile.getTopCard();
                 card.moveToPile(tableauPiles.get(i));
-                if(j ==i ) {
+                if (j == i) {
                     card.flip();
                 }
             }
