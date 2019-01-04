@@ -107,7 +107,6 @@ public class Game extends Pane {
         getChildren().add(restartBtn);
         initPiles();
         dealCards();
-        flipTopCards();
         addButtonsEventHandlers();
     }
 
@@ -254,6 +253,7 @@ public class Game extends Pane {
             getChildren().add(card);
         });
         fillTableauPiles();
+        flipTopCards();
     }
 
     public void setTableBackground(Image tableBackground) {
