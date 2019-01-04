@@ -41,11 +41,17 @@ public class Game extends Pane {
             card.setMouseTransparent(false);
             System.out.println("Placed " + card + " to the waste.");
         }
+        if(card.getContainingPile().getPileType() == Pile.PileType.TABLEAU){
+            if(card == card.getContainingPile().getTopCard() && card.getContainingPile().getTopCard().isFaceDown()) {
+                card.flip();
+            }
+        }
     };
 
     private EventHandler<MouseEvent> stockReverseCardsHandler = e -> {
         refillStockFromDiscard();
     };
+
 
     private EventHandler<MouseEvent> onMousePressedHandler = e -> {
         dragStartX = e.getSceneX();
@@ -70,6 +76,7 @@ public class Game extends Pane {
         card.toFront();
         card.setTranslateX(offsetX);
         card.setTranslateY(offsetY);
+
     };
 
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
@@ -78,12 +85,15 @@ public class Game extends Pane {
         Card card = (Card) e.getSource();
         Pile pile = getValidIntersectingPile(card, tableauPiles);
         //TODO
+
         if (pile != null) {
             handleValidMove(card, pile);
         } else {
             draggedCards.forEach(MouseUtil::slideBack);
             draggedCards = null;
+
         }
+
     };
 
     public boolean isGameWon() {
@@ -97,6 +107,7 @@ public class Game extends Pane {
         getChildren().add(restartBtn);
         initPiles();
         dealCards();
+        flipTopCards();
         addButtonsEventHandlers();
     }
 
@@ -216,10 +227,17 @@ public class Game extends Pane {
             for (int j = 0; j < i+1; j++) {
                 card = stockPile.getTopCard();
                 card.moveToPile(tableauPiles.get(i));
-                if(j == i ) {
-                    card.flip();
-                }
+
             }
+        }
+    }
+
+    public void flipTopCards(){
+        for (int i = 0; i < tableauPiles.size(); i++) {
+            if (tableauPiles.get(i).getTopCard().isFaceDown()){
+                tableauPiles.get(i).getTopCard().flip();
+            }
+            System.out.println(tableauPiles.get(i).getTopCard());
         }
     }
 
