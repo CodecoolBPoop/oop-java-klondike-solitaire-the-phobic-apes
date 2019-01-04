@@ -79,7 +79,7 @@ public class Card extends ImageView {
         return "The " + "Rank" + rank + " of " + "Suit" + suit;
     }
 
-    public static boolean isOppositeColor(Card card1, Card card2) {
+    public static boolean isOppositeSuit(Card card1, Card card2) {
         if(card1.suit.equals(SuitType.HARTS) || card1.suit.equals(SuitType.DIAMONDS)){
             if(card2.suit.equals(SuitType.SPADES) || card2.suit.equals(SuitType.CLUBS)){
                 return true;
@@ -93,8 +93,12 @@ public class Card extends ImageView {
         }
     }
 
-    public static boolean isCardOneLowerThanTopCard(Card card, Card topCard) {
+    public static boolean isCardRankBelowToTopCard(Card card, Card topCard) {
         return RankType.getIndex(card.rank) == RankType.getIndex(topCard.rank) - 1;
+    }
+
+    public static boolean isCardRankHigherThanTopCard(Card card, Card topCard) {
+        return RankType.getIndex(card.rank) - 1 == RankType.getIndex(topCard.rank);
     }
 
     public static boolean isSameSuit(Card card1, Card card2) {
