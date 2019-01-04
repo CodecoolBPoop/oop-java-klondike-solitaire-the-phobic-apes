@@ -101,6 +101,23 @@ public class Game extends Pane {
     }
 
     private void restartGame() {
+
+        for (Card card:stockPile.getCards()) {
+            getChildren().remove(card);
+
+        }
+
+        for (Card card:discardPile.getCards()) {
+            getChildren().remove(card);
+        }
+
+        for (int i = 0; i< tableauPiles.size(); i++) {
+            for (Card card: tableauPiles.get(i).getCards()) {
+                getChildren().remove(card);
+            }
+        }
+
+        deck = Card.createNewDeck();
         Collections.shuffle(deck);
         dealCards();
     }
@@ -199,7 +216,7 @@ public class Game extends Pane {
             for (int j = 0; j < i+1; j++) {
                 card = stockPile.getTopCard();
                 card.moveToPile(tableauPiles.get(i));
-                if(j ==i ) {
+                if(j == i ) {
                     card.flip();
                 }
             }
@@ -208,7 +225,11 @@ public class Game extends Pane {
 
     public void dealCards() {
         Iterator<Card> deckIterator = deck.iterator();
-        //TODO
+        stockPile.clear();
+        discardPile.clear();
+        for (int i = 0; i < tableauPiles.size() ; i++) {
+            tableauPiles.get(i).clear();
+        }
         deckIterator.forEachRemaining(card -> {
             stockPile.addCard(card);
             addMouseEventHandlers(card);
