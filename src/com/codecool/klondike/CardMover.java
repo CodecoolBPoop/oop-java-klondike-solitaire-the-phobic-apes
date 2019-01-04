@@ -16,13 +16,12 @@ class CardMover {
 
     void moveDraggedCards(double offsetX, double offsetY) {
         for (Card card : draggedCards) {
-//            card.getDropShadow().setRadius(20);
-//            card.getDropShadow().setOffsetX(10);
-//            card.getDropShadow().setOffsetY(10);
+            card.getDropShadow().setRadius(20);
+            card.getDropShadow().setOffsetX(10);
+            card.getDropShadow().setOffsetY(10);
 
             card.setTranslateX(offsetX);
             card.setTranslateY(offsetY);
-
         }
     }
 

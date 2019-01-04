@@ -76,8 +76,7 @@ public class Game extends Pane {
             handleValidMove(card, pile);
         } else {
             draggedCards.forEach(MouseUtil::slideBack);
-            draggedCards = null;
-
+            draggedCards.clear();
         }
 
     };
@@ -134,11 +133,7 @@ public class Game extends Pane {
         System.out.println("Stock refilled from discard pile.");
     }
 
-    public boolean isMoveValid(Card card, Pile destPile) {
-        //TODO
-        return true;
-    }
-
+    
     private Pile getValidIntersectingPile(Card card, List<Pile> piles) {
         Pile result = null;
         for (Pile pile : piles) {
@@ -148,6 +143,20 @@ public class Game extends Pane {
                 result = pile;
         }
         return result;
+    }
+
+    public boolean isMoveValid(Card card, Pile destPile) {
+        if (destPile.getTopCard() == null){
+            if(card.getRank().equals(RankType.KING)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        return Card.isOppositeColor(card, destPile.getTopCard())
+                && Card.isCardOneLowerThanTopCard(card, destPile.getTopCard());
+
     }
 
     private boolean isOverPile(Card card, Pile pile) {

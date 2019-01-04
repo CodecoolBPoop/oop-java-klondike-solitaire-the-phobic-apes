@@ -80,8 +80,21 @@ public class Card extends ImageView {
     }
 
     public static boolean isOppositeColor(Card card1, Card card2) {
-        //TODO
-        return true;
+        if(card1.suit.equals(SuitType.HARTS) || card1.suit.equals(SuitType.DIAMONDS)){
+            if(card2.suit.equals(SuitType.SPADES) || card2.suit.equals(SuitType.CLUBS)){
+                return true;
+            }
+            return false;
+        }else{
+            if(card2.suit.equals(SuitType.HARTS) || card2.suit.equals(SuitType.DIAMONDS)){
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public static boolean isCardOneLowerThanTopCard(Card card, Card topCard) {
+        return RankType.getIndex(card.rank) == RankType.getIndex(topCard.rank) - 1;
     }
 
     public static boolean isSameSuit(Card card1, Card card2) {
@@ -124,48 +137,4 @@ public class Card extends ImageView {
             }
         }
     }
-
-    public enum RankType{
-        TWO,
-        THREE,
-        FOUR,
-        FIVE,
-        SIX,
-        SEVEN,
-        EIGHT,
-        NINE,
-        TEN,
-        JACK,
-        QUEEN,
-        KING,
-        ACE;
-
-        public static int getIndex(RankType type){
-            int position = 0;
-            for (int i = 0; i < RankType.values().length; i++) {
-                if(type.equals(RankType.values()[i])){
-                    position = i + 1;
-                }
-            }
-            return position;
-        }
-    }
-
-    public enum SuitType{
-        HARTS,
-        DIAMONDS,
-        SPADES,
-        CLUBS;
-
-        public static int getIndex(SuitType type){
-            int position = 0;
-            for (int i = 0; i < SuitType.values().length; i++) {
-                if(type.equals(SuitType.values()[i])){
-                    position = i + 1;
-                }
-            }
-            return position;
-        }
-    }
-
 }
