@@ -69,7 +69,11 @@ public class Game extends Pane {
         if (draggedCards.isEmpty())
             return;
         Card card = (Card) e.getSource();
-        Pile pile = getValidIntersectingPile(card, tableauPiles);
+        List<List<Pile>> possiblePiles = new ArrayList<>();
+        possiblePiles.add(foundationPiles);
+        possiblePiles.add(tableauPiles);
+
+        Pile pile = getValidIntersectingPile(card,possiblePiles);
         //TODO
 
         if (pile != null) {
@@ -134,29 +138,41 @@ public class Game extends Pane {
     }
 
     
-    private Pile getValidIntersectingPile(Card card, List<Pile> piles) {
+    private Pile getValidIntersectingPile(Card card, List<List<Pile>> piles) {
         Pile result = null;
-        for (Pile pile : piles) {
-            if (!pile.equals(card.getContainingPile()) &&
-                    isOverPile(card, pile) &&
-                    isMoveValid(card, pile))
-                result = pile;
+        for (List<Pile> list : piles) {
+            for (Pile pile : list) {
+                if (!pile.equals(card.getContainingPile()) &&
+                        isOverPile(card, pile) &&
+                        isMoveValid(card, pile))
+                    result = pile;
+            }
         }
         return result;
     }
 
     public boolean isMoveValid(Card card, Pile destPile) {
-        if (destPile.getTopCard() == null){
-            if(card.getRank().equals(RankType.KING)){
-                return true;
+        if(destPile.getPileType().equals(Pile.PileType.TABLEAU)){
+            if (destPile.getTopCard() == null){
+                if(card.getRank().equals(RankType.KING)){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+
+            return Card.isOppositeSuit(card, destPile.getTopCard())
+                    && Card.isCardRankBelowToTopCard(card, destPile.getTopCard());
+        }
+        else{
+            if (destPile.getTopCard() == null){
+                return card.getRank().equals(RankType.ACE);
+
             }else{
-                return false;
+                return Card.isCardRankHigherThanTopCard(card, destPile.getTopCard())
+                        && Card.isSameSuit(card, destPile.getTopCard());
             }
         }
-
-        return Card.isOppositeColor(card, destPile.getTopCard())
-                && Card.isCardOneLowerThanTopCard(card, destPile.getTopCard());
-
     }
 
     private boolean isOverPile(Card card, Pile pile) {
