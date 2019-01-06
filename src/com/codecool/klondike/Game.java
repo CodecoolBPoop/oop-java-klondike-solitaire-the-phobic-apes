@@ -22,6 +22,7 @@ public class Game extends Pane {
     private Pile discardPile;
     private List<Pile> foundationPiles = FXCollections.observableArrayList();
     private List<Pile> tableauPiles = FXCollections.observableArrayList();
+    private List<List<Pile>> possiblePiles = new ArrayList<>();
 
     private double dragStartX, dragStartY;
     private List<Card> draggedCards = FXCollections.observableArrayList();
@@ -69,10 +70,6 @@ public class Game extends Pane {
         if (draggedCards.isEmpty())
             return;
         Card card = (Card) e.getSource();
-        List<List<Pile>> possiblePiles = new ArrayList<>();
-        possiblePiles.add(foundationPiles);
-        possiblePiles.add(tableauPiles);
-
         Pile pile = getValidIntersectingPile(card,possiblePiles);
         //TODO
 
@@ -86,17 +83,22 @@ public class Game extends Pane {
     };
 
     public boolean isGameWon() {
-        //TODO
-        return false;
+        return stockPile.isEmpty() && discardPile.isEmpty();
     }
 
     public Game() {
+        initPossiblePiles();
         deck = Card.createNewDeck();
         Collections.shuffle(deck);
         getChildren().add(restartBtn);
         initPiles();
         dealCards();
         addButtonsEventHandlers();
+    }
+
+    private void initPossiblePiles() {
+        possiblePiles.add(foundationPiles);
+        possiblePiles.add(tableauPiles);
     }
 
     private void restartGame() {
@@ -133,7 +135,10 @@ public class Game extends Pane {
     }
 
     public void refillStockFromDiscard() {
-        //TODO
+        for (int i = discardPile.getCards().size() - 1; i >= 0 ; i--) {
+            discardPile.getCards().get(i).moveToPile(stockPile);
+        }
+
         System.out.println("Stock refilled from discard pile.");
     }
 
