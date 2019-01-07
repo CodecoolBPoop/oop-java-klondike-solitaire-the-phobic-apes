@@ -9,8 +9,8 @@ import java.util.*;
 
 public class Card extends ImageView {
 
-    private int suit;
-    private int rank;
+    private SuitType suit;
+    private RankType rank;
     private boolean faceDown;
 
     private Image backFace;
@@ -24,8 +24,8 @@ public class Card extends ImageView {
     public static final int HEIGHT = 215;
 
     public Card(int suit, int rank, boolean faceDown) {
-        this.suit = suit;
-        this.rank = rank;
+        this.suit = SuitType.values()[suit - 1];
+        this.rank = RankType.values()[rank - 1];
         this.faceDown = faceDown;
         this.dropShadow = new DropShadow(2, Color.gray(0, 0.75));
         backFace = cardBackImage;
@@ -34,11 +34,11 @@ public class Card extends ImageView {
         setEffect(dropShadow);
     }
 
-    public int getSuit() {
+    public SuitType getSuit() {
         return suit;
     }
 
-    public int getRank() {
+    public RankType getRank() {
         return rank;
     }
 
@@ -47,7 +47,9 @@ public class Card extends ImageView {
     }
 
     public String getShortName() {
-        return "S" + suit + "R" + rank;
+        int index = RankType.getIndex(RankType.TWO);
+        String code = "S" + SuitType.getIndex(suit) + "R" + RankType.getIndex(rank);
+        return code;
     }
 
     public DropShadow getDropShadow() {
@@ -77,9 +79,26 @@ public class Card extends ImageView {
         return "The " + "Rank" + rank + " of " + "Suit" + suit;
     }
 
-    public static boolean isOppositeColor(Card card1, Card card2) {
-        //TODO
-        return true;
+    public static boolean isOppositeSuit(Card card1, Card card2) {
+        if(card1.suit.equals(SuitType.HARTS) || card1.suit.equals(SuitType.DIAMONDS)){
+            if(card2.suit.equals(SuitType.SPADES) || card2.suit.equals(SuitType.CLUBS)){
+                return true;
+            }
+            return false;
+        }else{
+            if(card2.suit.equals(SuitType.HARTS) || card2.suit.equals(SuitType.DIAMONDS)){
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public static boolean isCardRankBelowToTopCard(Card card, Card topCard) {
+        return RankType.getIndex(card.rank) == RankType.getIndex(topCard.rank) - 1;
+    }
+
+    public static boolean isCardRankHigherThanTopCard(Card card, Card topCard) {
+        return RankType.getIndex(card.rank) - 1 == RankType.getIndex(topCard.rank);
     }
 
     public static boolean isSameSuit(Card card1, Card card2) {
@@ -122,5 +141,4 @@ public class Card extends ImageView {
             }
         }
     }
-
 }
