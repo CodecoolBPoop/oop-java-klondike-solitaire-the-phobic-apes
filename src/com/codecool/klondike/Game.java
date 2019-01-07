@@ -23,6 +23,7 @@ public class Game extends Pane {
     private List<Pile> foundationPiles = FXCollections.observableArrayList();
     private List<Pile> tableauPiles = FXCollections.observableArrayList();
     private List<List<Pile>> possiblePiles = new ArrayList<>();
+    final Stage dialog = new Stage();
 
     private double dragStartX, dragStartY;
     private List<Card> draggedCards = FXCollections.observableArrayList();
@@ -31,16 +32,21 @@ public class Game extends Pane {
     private static double FOUNDATION_GAP = 0;
     private static double TABLEAU_GAP = 30;
 
-    private boolean IS_WIN_CONDITION_TEST = true;
+    private boolean IS_WIN_CONDITION_TEST = false;
     private String WIN_MESSAGE = "Congratulation you won!";
 
     private CardMover cardMover = new CardMover(draggedCards);
-    Button restartBtn = new Button("Restart");
+
+    private VBox controlBtnsLayout;
+    private Button restartBtn;
+    private Button undoBtn;
+
+    private UndoHandler undoHandler = new UndoHandler();
 
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
-        if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
+        if (card.getContainingPile().getPileType() == Pile.PileType.STOCK && card.getContainingPile().getTopCard().equals(card)) {
             card.moveToPile(discardPile);
             card.flip();
             card.setMouseTransparent(false);
@@ -49,6 +55,7 @@ public class Game extends Pane {
         if (card.getContainingPile().getPileType() == Pile.PileType.TABLEAU) {
             if (card == card.getContainingPile().getTopCard() && card.getContainingPile().getTopCard().isFaceDown()) {
                 card.flip();
+                undoHandler.setUndoData(new CardFlip(card, Action.ActionType.CARD_FLIP));
             }
         }
     };
@@ -91,15 +98,14 @@ public class Game extends Pane {
     }
 
     void showWinMessage() {
-        final Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(primaryStage);
         VBox dialogVbox = new VBox(20);
 
-        Button restartBtn = new Button("Restart");
-        restartBtn.setOnAction((e)-> {
+        Button restartBtnInDialogBox = new Button("Restart");
+        restartBtnInDialogBox.setOnAction((e)-> {
             restartGame();
-            dialog.close();
+            //dialog.close();
         });
 
         dialog.setOnCloseRequest((e)->{
@@ -108,7 +114,7 @@ public class Game extends Pane {
         });
 
 
-        dialogVbox.getChildren().addAll(new Text(WIN_MESSAGE), restartBtn);
+        dialogVbox.getChildren().addAll(new Text(WIN_MESSAGE), restartBtnInDialogBox);
         Scene dialogScene = new Scene(dialogVbox, 200, 200);
         dialog.setScene(dialogScene);
         dialog.show();
@@ -134,15 +140,22 @@ public class Game extends Pane {
         if(!IS_WIN_CONDITION_TEST){
             Collections.shuffle(deck);
         }
-        getChildren().add(restartBtn);
+        initControlLayoutAndBtns();
+        initPossiblePiles();
         initPiles();
         dealCards();
-        addButtonsEventHandlers();
     }
 
-    private void initPossiblePiles() {
-        possiblePiles.add(foundationPiles);
-        possiblePiles.add(tableauPiles);
+    private void initControlLayoutAndBtns(){
+        controlBtnsLayout = new VBox(5);
+        restartBtn = new Button("Restart");
+        undoBtn = new Button("Undo");
+
+        restartBtn.setOnAction((event -> restartGame()));
+        undoBtn.setOnAction((event -> undoHandler.undoMove()));
+
+        controlBtnsLayout.getChildren().addAll(restartBtn, undoBtn);
+        getChildren().add(controlBtnsLayout);
     }
 
     private void restartGame() {
@@ -169,6 +182,11 @@ public class Game extends Pane {
         dealCards();
     }
 
+    private void initPossiblePiles() {
+        possiblePiles.add(foundationPiles);
+        possiblePiles.add(tableauPiles);
+    }
+
     private void resetFoundationPiles() {
         for (Pile pile : foundationPiles) {
             for (Card card : pile.getCards()) {
@@ -186,10 +204,6 @@ public class Game extends Pane {
         card.setOnMouseDragged(onMouseDraggedHandler);
         card.setOnMouseReleased(onMouseReleasedHandler);
         card.setOnMouseClicked(onMouseClickedHandler);
-    }
-
-    public void addButtonsEventHandlers() {
-        restartBtn.setOnAction((event -> restartGame()));
     }
 
     public void refillStockFromDiscard() {
@@ -253,9 +267,16 @@ public class Game extends Pane {
         }
         System.out.println(msg);
         MouseUtil.slideToDest(draggedCards, destPile);
+
+        List<Card> movedCards = new ArrayList<>();
+        movedCards.addAll(draggedCards);
+
+        undoHandler.setUndoData(new CardDrag(
+                card.getContainingPile(), movedCards , destPile, Action.ActionType.CARD_DRAG)
+        );
+
         draggedCards.clear();
     }
-
 
     private void initPiles() {
 
